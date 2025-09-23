@@ -1,6 +1,6 @@
-/* Hero */
-.hero {
-  height: 70vh;
+/* Banner Principal */
+.banner-principal {
+  height: 30vh;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -8,51 +8,74 @@
   justify-content: center;
 }
 
-.hero-overlay {
+.banner-contenido {
   background-color: rgba(0,0,0,0.5);
   padding: 2rem;
   border-radius: 0.5rem;
   text-align: center;
 }
 
-.hero-title {
+.titulo-restaurante {
   color: white;
   font-size: 3rem;
   font-weight: bold;
 }
 
-.hero-subtitle {
+.descripcion-restaurante {
   color: #FACC15; /* amarillo Tailwind */
   font-size: 1.5rem;
   margin-top: 0.5rem;
 }
 
-/* Destacados */
-.destacados {
+/* Sección de Navegación */
+.seccion-navegacion {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.boton-navegacion {
+  background-color: #DC2626; /* rojo Tailwind */
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.boton-navegacion:hover {
+  background-color: #B91C1C; /* rojo más oscuro */
+}
+
+/* Sección de Platos Destacados */
+.seccion-destacados {
   padding: 1.5rem;
 }
 
-.destacados h2 {
+.seccion-destacados h2 {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
 
-.destacados-grid {
+.grilla-platos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
-.destacado-card {
+.tarjeta-plato {
   border: 1px solid #E5E7EB;
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Footer */
-.footer {
+/* Pie de Página */
+.pie-pagina {
   background-color: #B91C1C; /* rojo Tailwind */
   color: white;
   padding: 1rem;

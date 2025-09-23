@@ -1,5 +1,5 @@
-import Navbar from "../components/Navbar";
-import ReservaForm from "../components/ReservaForm";
+import Navbar from "../../components/user/Navbar";
+import ReservaForm from "../../components/user/ReservaForm";
 
 export default function Reserva() {
   return (

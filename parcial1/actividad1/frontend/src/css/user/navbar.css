@@ -1,0 +1,19 @@
+.navbar  {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    color: rgb(255, 255, 255);
+    background-color: #B91C1C;
+    border-bottom: 1px solid rgb(255, 255, 255);
+    padding: 1rem;
+
+    }
+.user-link {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.user-link:hover {
+  color: #776e6c;
+}
