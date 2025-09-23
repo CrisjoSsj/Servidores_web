@@ -1,27 +1,34 @@
-## Frontend
+# 🍗 Chuwue Grill - Sistema Integral de Restaurante
 
-Aplicación web frontend para la actividad 1 sobre el tema de Servioco de restaurante,
-Esta aplicación permite a los clientes ver el menú, hacer reservas y consultar la disponibilidad de mesas en tiempo real.
+Aplicación web completa para la gestión integral del restaurante **Chuwue Grill**. Incluye interfaz de cliente para consultas y reservas, más un completo panel de administración para la gestión operativa del restaurante.
 
-## Características
+## 🎯 Características Principales
 
-- **Página de Inicio**: Presentación del restaurante con platos destacados
-- **Menú Digital**: Visualización completa del menú con precios y descripciones
-- **Sistema de Reservas**: Formulario para realizar reservas de mesas
-- **Fila Virtual**: Consulta de disponibilidad de mesas en tiempo real
-- **Navegación Intuitiva**: Interfaz de usuario moderna y responsive
+### 👥 **Interfaz de Cliente**
+- **Página de Inicio**: Presentación del restaurante con platos destacados y información esencial
+- **Menú Digital**: Visualización completa del menú categorizado con precios y descripciones
+- **Sistema de Reservas**: Formulario para reservas de ocasiones especiales con selección de fecha/hora
+- **Fila Virtual**: Consulta de disponibilidad de mesas en tiempo real y sistema de cola
+- **Navegación Intuitiva**: Interfaz responsive con nombres de clases descriptivos en español
 
-## Tecnologías Utilizadas
+### 🏢 **Panel de Administración**
+- **Dashboard Central**: Estadísticas en tiempo real, alertas inteligentes y acciones rápidas
+- **Gestión de Mesas**: Control completo de ocupación, liberación y cola de espera virtual
+- **Gestión de Reservas**: Administración de reservas con calendario y gestión de eventos
+- **Gestión de Menú**: CRUD completo de categorías, platos, precios e inventario
+- **Sistema de Reportes**: Analytics, reportes financieros y recomendaciones de negocio
 
-- **React 19** - Framework principal de JavaScript para crear interfaces de usuario
-- **Vite** - Build tool moderno y servidor de desarrollo rápido para aplicaciones React
+## 🛠️ Tecnologías Utilizadas
+
+- **React 19** - Framework principal para interfaces de usuario interactivas
+- **Vite** - Build tool moderno y servidor de desarrollo ultra-rápido
 - **TypeScript** - Tipado estático para JavaScript (archivos .tsx)
-- **React Router DOM** - Enrutamiento SPA (Single Page Application)
-- **Tailwind CSS** - Framework de CSS utilitario para estilos
-- **ESLint** - Linter para código JavaScript/TypeScript
+- **React Router DOM** - Enrutamiento SPA para navegación fluida
+- **Tailwind CSS** - Framework de CSS utilitario para diseño responsive
+- **ESLint** - Linter para mantener calidad del código
 
 
-## Estructura del Proyecto
+## 📁 Estructura del Proyecto
 
 ```
 frontend/
@@ -31,20 +38,30 @@ frontend/
 │   ├── assets/            # Recursos (imágenes, iconos)
 │   │   └── react.svg
 │   ├── components/        # Componentes reutilizables
-│   │   ├── MenuCard.tsx   # Tarjeta de elemento del menú
-│   │   ├── Navbar.tsx     # Barra de navegación
-│   │   └── ReservaForm.tsx # Formulario de reservas
+│   │   ├── MenuCard.tsx           # Tarjeta de elemento del menú
+│   │   ├── Navbar.tsx             # Barra de navegación del usuario
+│   │   ├── ReservaForm.tsx        # Formulario de reservas
+│   │   ├── PiePagina.tsx          # Footer del sitio
+│   │   └── admin/                 # Componentes de administración
+│   │       └── NavbarAdmin.tsx    # Navegación del panel admin
 │   ├── css/              # Estilos CSS personalizados
 │   │   ├── Home.css      # Estilos de la página de inicio
 │   │   └── Menu.css      # Estilos del menú
 │   ├── interface/        # Definiciones de tipos TypeScript
 │   │   └── MenuCardProps.ts
 │   ├── pages/            # Páginas de la aplicación
-│   │   ├── FilaVirtual.tsx # Página de fila virtual
-│   │   ├── Home.tsx       # Página de inicio
-│   │   ├── Menu.tsx       # Página del menú
-│   │   └── Reservas.tsx   # Página de reservas
-│   ├── App.tsx           # Componente principal
+│   │   ├── user/         # Páginas del cliente
+│   │   │   ├── FilaVirtual.tsx    # Fila virtual y disponibilidad
+│   │   │   ├── Home.tsx           # Página de inicio
+│   │   │   ├── Menu.tsx           # Menú completo del restaurante
+│   │   │   └── Reservas.tsx       # Sistema de reservas
+│   │   └── admin/        # Páginas de administración
+│   │       ├── Dashboard.tsx      # Panel principal de admin
+│   │       ├── GestionMesas.tsx   # Gestión de mesas y cola
+│   │       ├── GestionReservas.tsx # Gestión de reservas
+│   │       ├── GestionMenu.tsx    # Gestión del menú e inventario
+│   │       └── Reportes.tsx       # Analytics y reportes
+│   ├── App.tsx           # Componente principal con rutas
 │   ├── main.tsx          # Punto de entrada de la aplicación
 │   └── index.css         # Estilos globales
 ├── package.json          # Dependencias y scripts
@@ -53,38 +70,79 @@ frontend/
 └── tsconfig.json         # Configuración de TypeScript
 ```
 
-## Páginas de la Aplicación
+## 🌐 Rutas de la Aplicación
 
-### Inicio (`/`)
-- Presentación del restaurante Chuwue Grill
-- Navegación rápida a las principales secciones
-- Platos destacados del restaurante
-- Información de contacto
+### 👥 **Rutas de Cliente**
+| Ruta | Página | Descripción |
+|------|--------|-------------|
+| `/` | **Inicio** | Presentación del restaurante, platos destacados e información de contacto |
+| `/menu` | **Menú** | Menú completo categorizado (Alitas, Hamburguesas, Parrilladas, etc.) |
+| `/reservas` | **Reservas** | Sistema de reservas para ocasiones especiales con formulario completo |
+| `/filavirtual` | **Fila Virtual** | Disponibilidad de mesas en tiempo real y sistema de cola virtual |
 
-### Menú (`/menu`)
-- Visualización completa del menú
-- Categorías de alimentos
-- Precios y descripciones de cada plato
+### 🏢 **Rutas de Administración**
+| Ruta | Página | Descripción |
+|------|--------|-------------|
+| `/admin` | **Dashboard** | Panel principal con estadísticas, alertas y acciones rápidas |
+| `/admin/mesas` | **Gestión de Mesas** | Control de ocupación, liberación de mesas y gestión de cola |
+| `/admin/reservas` | **Gestión de Reservas** | Administración de reservas con calendario y eventos |
+| `/admin/menu` | **Gestión de Menú** | CRUD de categorías, platos, precios e inventario |
+| `/admin/reportes` | **Reportes** | Analytics, reportes financieros y recomendaciones |
 
-### Reservas (`/reserva`)
-- Formulario para realizar reservas
-- Selección de fecha y hora
-- Información del cliente
+## 🎨 Sistema de Diseño
 
-### Fila Virtual (`/filavirtual`)
-- Consulta de disponibilidad de mesas
-- Estado en tiempo real del restaurante
-- Estimación de tiempos de espera
+### **Paleta de Colores**
+- **Rojo Principal**: `#DC2626` (bg-red-600) - Color brand del restaurante
+- **Amarillo de Acento**: `#FDE047` (text-yellow-300) - Estados hover y destacados  
+- **Blanco/Gris**: Para fondos, texto y elementos neutros
 
-## Estilos y Diseño
+### **Clases CSS Descriptivas**
+El proyecto utiliza **nombres de clases descriptivos en español** para mejor comprensión:
+- `tarjeta-plato-menu` en lugar de `menu-card`
+- `boton-navegacion` en lugar de `nav-button`  
+- `contenedor-principal` en lugar de `main-container`
+- `seccion-estadisticas-admin` en lugar de `admin-stats`
 
-El proyecto utiliza **Tailwind CSS** para el sistema de diseño y estilos CSS personalizados para elementos específicos. Los colores principales del restaurante son:
+### **Componentes de UI**
+- **Responsive Design**: Optimizado para desktop, tablet y móvil
+- **Tailwind CSS**: Framework utilitario para estilos consistentes
+- **Componentes Modulares**: Reutilizables entre páginas de usuario y admin
 
-- **Rojo**: `#DC2626` (bg-red-600) - Color principal del brand
-- **Amarillo**: `#FDE047` (text-yellow-300) - Color de acento para hover states
-- **Blanco**: Para texto y fondos
+## 🔧 Funcionalidades Administrativas
 
-## Configuración
+### **📊 Dashboard de Control**
+- **Estadísticas en Tiempo Real**: Ventas del día, órdenes completadas, clientes atendidos
+- **Estado del Restaurante**: Ocupación de mesas, cola de espera, reservas, personal
+- **Sistema de Alertas**: Mesas con tiempo excedido, inventario bajo, nuevas reservas
+- **Acciones Rápidas**: Navegación directa a gestión de mesas, reservas, menú y reportes
+
+### **🍽️ Gestión de Mesas**
+- **Control de Ocupación**: Asignar clientes a mesas disponibles
+- **Liberación de Mesas**: Finalizar servicio y generar cuentas
+- **Estados Detallados**: Disponible, Ocupada, Reservada, En Limpieza
+- **Cola Virtual**: Gestión de clientes en espera con tiempos estimados
+- **Alertas de Tiempo**: Notificaciones para mesas con tiempo excedido
+
+### **📅 Gestión de Reservas**
+- **Calendario Interactivo**: Vista de reservas por día/semana/mes
+- **CRUD Completo**: Crear, editar, cancelar reservas
+- **Eventos Corporativos**: Gestión especializada para grupos grandes
+- **Control de Disponibilidad**: Validación automática de horarios y capacidad
+
+### **🍕 Gestión de Menú e Inventario**
+- **Categorías Dinámicas**: Crear y gestionar categorías de platos
+- **CRUD de Platos**: Agregar, editar, eliminar platos con precios
+- **Control de Inventario**: Stock en tiempo real con alertas de reabastecimiento
+- **Estados de Productos**: Disponible, Agotado, Temporalmente Inactivo
+- **Análisis de Ventas**: Platos más vendidos y estadísticas por categoría
+
+### **📈 Sistema de Reportes**
+- **Analytics de Ventas**: Tendencias, comparaciones y proyecciones
+- **Reportes Financieros**: Ingresos, costos y márgenes de ganancia
+- **Estadísticas Operativas**: Tiempo promedio de servicio, rotación de mesas
+- **Recomendaciones**: Sugerencias basadas en datos para optimización
+
+## ⚙️ Configuración Técnica
 
 ### React + Vite
 Esta es una aplicación **React** construida con **Vite** como herramienta de desarrollo y build. Vite proporciona:
@@ -132,11 +190,34 @@ Para hacer deploy de la aplicación React:
 
 3. **Despliega** los archivos en tu servidor web preferido (Netlify, Vercel, Apache, Nginx, etc.)
 
-## 🤝 Contribuir
+## 🎯 Estado del Proyecto
 
-1. Haz fork del proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+### **✅ Funcionalidades Completadas**
+- [x] **Interfaz de Usuario Completa** - 4 páginas principales del cliente
+- [x] **Panel de Administración Integral** - 5 páginas de gestión operativa  
+- [x] **Sistema de Rutas** - React Router con navegación completa
+- [x] **Diseño Responsive** - Optimizado para todos los dispositivos
+- [x] **Nombres de Clases Descriptivos** - CSS en español para mejor comprensión
+- [x] **Estructura Modular** - Componentes reutilizables y organizados
+
+### **🔄 Próximas Mejoras (Futuras)**
+- [ ] **Backend API**: Conexión con servidor Node.js/Express
+- [ ] **Base de Datos**: Integración con MongoDB/PostgreSQL
+- [ ] **Autenticación**: Sistema de login para administradores
+- [ ] **Notificaciones Real-time**: WebSockets para actualizaciones live
+- [ ] **Sistema de Pagos**: Integración con pasarelas de pago
+- [ ] **PWA**: Aplicación web progresiva para móviles
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 👨‍💻 Desarrollado por
+
+**Actividad 1 - Servidores Web**  
+Parcial 1 - Sistema Integral de Restaurante
+
+---
+
+> 💡 **Nota**: Este es un proyecto de maquetado (frontend-only). Para funcionalidad completa, se requiere desarrollo backend con base de datos y API REST.
 
