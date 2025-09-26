@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import "../../css/admin/NavbarAdmin.css";
 
 const elementosNavegacionAdmin = [
   { nombre: "Dashboard", ruta: "/admin" },

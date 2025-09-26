@@ -33,11 +33,11 @@ export default function Navbar() {
         </div>
 
         {/* Botón de contacto */}
-        <div className="seccion-contacto-nav">
+        {/*<div className="seccion-contacto-nav">
           <a href="tel:099-123-4567" className="boton-contacto">
             📞 Llamar
           </a>
-        </div>
+        </div>*/}
       </div>
     </nav>
   );

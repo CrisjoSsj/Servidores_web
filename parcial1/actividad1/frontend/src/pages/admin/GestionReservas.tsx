@@ -1,4 +1,5 @@
 import NavbarAdmin from "../../components/admin/NavbarAdmin";
+import "../../css/admin/GestionReservas.css";
 
 export default function GestionReservas() {
   return (

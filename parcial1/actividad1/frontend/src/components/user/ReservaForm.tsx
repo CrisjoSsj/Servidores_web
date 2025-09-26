@@ -1,3 +1,5 @@
+import "../../css/user/Reservas.css";
+
 export default function ReservaForm() {
   return (
     <form className="formulario-reserva">

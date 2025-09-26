@@ -1,4 +1,5 @@
 import NavbarAdmin from "../../components/admin/NavbarAdmin";
+import "../../css/admin/GestionMenu.css";
 
 export default function GestionMenu() {
   return (

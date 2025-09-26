@@ -1,4 +1,5 @@
 import NavbarAdmin from "../../components/admin/NavbarAdmin";
+import "../../css/admin/Reportes.css";
 
 export default function Reportes() {
   return (

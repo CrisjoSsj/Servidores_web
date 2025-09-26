@@ -1,5 +1,6 @@
 import Navbar from "../../components/user/Navbar";
 import PiePagina from "../../components/user/PiePagina";
+import "../../css/user/FilaVirtual.css";
 
 export default function FilaVirtual() {
     return (

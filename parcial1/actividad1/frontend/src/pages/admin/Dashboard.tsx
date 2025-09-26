@@ -1,4 +1,6 @@
 import NavbarAdmin from "../../components/admin/NavbarAdmin";
+import "../../css/admin/Dashboard.css";
+
 
 export default function Dashboard() {
   return (
