@@ -1,4 +1,5 @@
 import NavbarAdmin from "../../components/admin/NavbarAdmin";
+import "../../css/admin/GestionMesas.css";
 
 export default function GestionMesas() {
   return (

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Navbar from "../../components/user/Navbar";
 import MenuCard from "../../components/user/MenuCard";
 import PiePagina from "../../components/user/PiePagina";
@@ -62,6 +63,82 @@ const postres = [
 ];
 
 export default function Menu() {
+  useEffect(() => {
+    const navegacionCategorias = document.querySelector('.navegacion-categorias');
+    const enlaces = document.querySelectorAll('.enlace-categoria');
+    const secciones = document.querySelectorAll('.seccion-categoria');
+    const navbar = document.querySelector('.navbar');
+
+    // Función para obtener la altura dinámica del navbar
+    const getNavbarHeight = () => {
+      return navbar ? navbar.getBoundingClientRect().height : 60;
+    };
+
+    // Función para manejar el scroll
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const navbarHeight = getNavbarHeight();
+      
+      // Agregar clase 'scrolled' cuando se hace scroll
+      if (scrollTop > 100) {
+        navegacionCategorias?.classList.add('scrolled');
+      } else {
+        navegacionCategorias?.classList.remove('scrolled');
+      }
+
+      // Detectar qué sección está visible
+      let currentSection = '';
+      secciones.forEach((seccion) => {
+        const rect = seccion.getBoundingClientRect();
+        const offset = navbarHeight + 80; // Altura del navbar + margen adicional
+        
+        if (rect.top <= offset && rect.bottom >= offset) {
+          currentSection = seccion.getAttribute('id') || '';
+        }
+      });
+
+      // Actualizar enlaces activos
+      enlaces.forEach((enlace) => {
+        enlace.classList.remove('activo');
+        const href = enlace.getAttribute('href');
+        if (href === `#${currentSection}`) {
+          enlace.classList.add('activo');
+        }
+      });
+    };
+
+    // Smooth scroll para los enlaces
+    enlaces.forEach((enlace) => {
+      enlace.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = enlace.getAttribute('href')?.substring(1);
+        const targetElement = document.getElementById(targetId || '');
+        
+        if (targetElement) {
+          const navbarHeight = getNavbarHeight();
+          const navegacionHeight = navegacionCategorias ? navegacionCategorias.getBoundingClientRect().height : 60;
+          const offsetTop = targetElement.offsetTop - navbarHeight - navegacionHeight - 10;
+          
+          window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Agregar event listener para scroll
+    window.addEventListener('scroll', handleScroll);
+    
+    // Llamar una vez para inicializar
+    handleScroll();
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <div>
       <Navbar />

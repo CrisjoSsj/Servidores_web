@@ -1,3 +1,5 @@
+import "../../css/user/PiePagina.css";
+
 export default function PiePagina() {
     return( 
         <footer className="pie-pagina">
@@ -5,7 +7,7 @@ export default function PiePagina() {
                 {/* Información del restaurante */}
                 <div className="seccion-informacion-footer">
                     <h3 className="titulo-footer">Chuwue Grill</h3>
-                    <p className="descripcion-footer">Las mejores alitas y parrilladas de la ciudad</p>
+                    <p className="descripcion-footer">Las mejores alitas y parrilladas de la ciudad, donde cada plato cuenta una historia de sabor auténtico</p>
                 </div>
 
                 {/* Información de contacto */}
@@ -28,9 +30,9 @@ export default function PiePagina() {
                 <div className="seccion-redes-footer">
                     <h4 className="titulo-seccion-footer">Síguenos</h4>
                     <div className="enlaces-redes">
-                        <a href="#" className="enlace-red-social">Facebook</a>
-                        <a href="#" className="enlace-red-social">Instagram</a>
-                        <a href="#" className="enlace-red-social">Twitter</a>
+                        <a href="#" className="enlace-red-social">FB</a>
+                        <a href="#" className="enlace-red-social">IG</a>
+                        <a href="#" className="enlace-red-social">TW</a>
                     </div>
                 </div>
             </div>

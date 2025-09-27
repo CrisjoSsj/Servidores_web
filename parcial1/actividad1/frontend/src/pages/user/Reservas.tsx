@@ -1,7 +1,7 @@
 import Navbar from "../../components/user/Navbar";
 import ReservaForm from "../../components/user/ReservaForm";
 import PiePagina from "../../components/user/PiePagina";
-
+import "../../css/user/Reservas.css";
 export default function Reservas() {
   return (
     <div>
