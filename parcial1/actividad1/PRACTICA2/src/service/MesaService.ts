@@ -1,4 +1,4 @@
-import { IMesa } from "../interface/Mesa";
+import { IMesa } from "../dominio/interface/Mesa";
 
 export class MesaService {
     private mesas: IMesa[] = [];

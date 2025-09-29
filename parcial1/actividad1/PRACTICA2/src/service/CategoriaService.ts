@@ -1,4 +1,4 @@
-import { ICategoriaMenu } from "../interface/CategoriaMenu";
+import { ICategoriaMenu } from "../dominio/interface/CategoriaMenu";
 
 export class CategoriaService {
     private categorias: ICategoriaMenu[] = []

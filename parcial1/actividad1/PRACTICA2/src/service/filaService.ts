@@ -1,4 +1,4 @@
-import { IFilaVirtual } from "../interface/FilaVirtual";
+import { IFilaVirtual } from "../dominio/interface/FilaVirtual";
 
 export class FilaService {
     private filas: IFilaVirtual[] = [];

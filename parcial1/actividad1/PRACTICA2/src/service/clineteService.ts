@@ -1,4 +1,4 @@
-import { ICliente } from "../interface/Cliente";
+import { ICliente } from "../dominio/interface/Cliente";
 
 export class ClienteService {
     private clientes: ICliente[] = [];
