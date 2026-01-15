@@ -1,0 +1,587 @@
+{
+	"info": {
+		"_postman_id": "probar-webhooks-collection",
+		"name": "🔔 Probar Webhooks - Disparar Eventos",
+		"description": "Colección para probar los webhooks del sistema.\n\n🎯 OBJETIVO:\n- Probar que los eventos se disparan correctamente\n- Ver las notificaciones en Telegram/WhatsApp\n- Verificar la sincronización con Google Sheets\n\n📋 ORDEN DE PRUEBA:\n1. Primero crear datos base (cliente, mesa, menú)\n2. Luego ejecutar acciones que disparan webhooks\n3. Verificar en n8n (http://localhost:5678) las ejecuciones",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "n8n_url",
+			"value": "http://localhost:5678"
+		}
+	],
+	"item": [
+		{
+			"name": "📦 1. SETUP - Crear Datos Base",
+			"description": "Primero ejecuta estos para tener datos con los que probar",
+			"item": [
+				{
+					"name": "1.1 Crear Cliente de Prueba",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Cliente Webhook Test\",\n  \"email\": \"webhook@test.com\",\n  \"telefono\": \"0991234567\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas/clientes",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "clientes"]
+						},
+						"description": "Crea un cliente para poder hacer reservas.\n\n⚠️ Guarda el ID del cliente de la respuesta."
+					}
+				},
+				{
+					"name": "1.2 Crear Mesa de Prueba",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numero\": \"Mesa Webhook Test\",\n  \"capacidad\": 4,\n  \"estado\": \"disponible\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas/mesas",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "mesas"]
+						},
+						"description": "Crea una mesa disponible.\n\n⚠️ Guarda el ID de la mesa de la respuesta."
+					}
+				},
+				{
+					"name": "1.3 Crear Menú de Prueba",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Menú Webhook Test\",\n  \"descripcion\": \"Menú para probar webhooks\",\n  \"activo\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/menus",
+							"host": ["{{gateway_url}}"],
+							"path": ["menus"]
+						},
+						"description": "Crea un menú para poder crear platos.\n\n⚠️ Guarda el ID del menú de la respuesta."
+					}
+				},
+				{
+					"name": "1.4 Crear Categoría de Prueba",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Categoría Webhook Test\",\n  \"descripcion\": \"Categoría para probar webhooks\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/menus/categorias",
+							"host": ["{{gateway_url}}"],
+							"path": ["menus", "categorias"]
+						},
+						"description": "Crea una categoría para poder crear platos.\n\n⚠️ Guarda el ID de la categoría de la respuesta."
+					}
+				},
+				{
+					"name": "1.5 Ver Clientes (obtener IDs)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{gateway_url}}/reservas/clientes",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "clientes"]
+						}
+					}
+				},
+				{
+					"name": "1.6 Ver Mesas (obtener IDs)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{gateway_url}}/reservas/mesas",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "mesas"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔥 2. DISPARAR WEBHOOKS - Vía API Gateway",
+			"description": "Estas acciones disparan webhooks REALES desde los microservicios hacia n8n",
+			"item": [
+				{
+					"name": "2.1 🟢 CREAR RESERVA → Dispara 'reserva.creada'",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_cliente\": 1,\n  \"id_mesa\": 1,\n  \"fecha\": \"2026-01-20\",\n  \"hora_inicio\": \"20:00\",\n  \"hora_fin\": \"22:00\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas"]
+						},
+						"description": "🔔 DISPARA: evento 'reserva.creada'\n\n📍 CÓDIGO QUE SE EJECUTA:\nArchivo: apps/backend-reserva/src/reserva/reserva.service.ts\nLínea 74: webhookService.emitEvent('reserva.creada', ...)\n\n📨 SE ENVÍA A:\nhttp://n8n:5678/webhook/reserva-evento\n\n✅ VERIFICAR EN:\n- n8n → Executions\n- Telegram (si está configurado)\n- WhatsApp (si está configurado)"
+					}
+				},
+				{
+					"name": "2.2 🟡 CONFIRMAR RESERVA → Dispara 'reserva.confirmada'",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"confirmada\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas/1",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "1"]
+						},
+						"description": "🔔 DISPARA: evento 'reserva.confirmada'\n\n📍 CÓDIGO QUE SE EJECUTA:\nArchivo: apps/backend-reserva/src/reserva/reserva.service.ts\nLínea 146: webhookService.emitEvent('reserva.confirmada', ...)\n\n⚠️ Cambia el ID /reservas/1 por el ID real de tu reserva"
+					}
+				},
+				{
+					"name": "2.3 🔴 ELIMINAR RESERVA → Dispara 'reserva.cancelada' (ALERTA CRÍTICA)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{gateway_url}}/reservas/1",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "1"]
+						},
+						"description": "🚨 DISPARA: evento 'reserva.cancelada' (ALERTA CRÍTICA)\n\n📍 CÓDIGO QUE SE EJECUTA:\nArchivo: apps/backend-reserva/src/reserva/reserva.service.ts\nLínea 182: webhookService.emitEvent('reserva.cancelada', ...)\n\n📨 SE ENVÍA A:\nhttp://n8n:5678/webhook/reserva-evento\n→ Luego n8n detecta que es CRÍTICO\n→ Ejecuta workflow de alertas\n→ Envía a Telegram + WhatsApp\n\n⚠️ Cambia el ID /reservas/1 por el ID real"
+					}
+				},
+				{
+					"name": "2.4 🟢 CREAR PLATO → Dispara 'plato.creado'",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "idempotency-key",
+								"value": "plato-webhook-test-{{$timestamp}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Plato Webhook Test\",\n  \"descripcion\": \"Plato creado para probar webhook\",\n  \"precio\": 25.99,\n  \"id_menu\": 1,\n  \"id_categoria\": 1,\n  \"disponible\": true\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/menus/platos",
+							"host": ["{{gateway_url}}"],
+							"path": ["menus", "platos"]
+						},
+						"description": "🔔 DISPARA: evento 'plato.creado'\n\n📍 CÓDIGO QUE SE EJECUTA:\nArchivo: apps/backend-menu/src/menu/menu.service.ts\nLínea 94: webhookService.emitEvent('plato.creado', ...)\n\n📨 SE ENVÍA A:\nhttp://n8n:5678/webhook/reserva-evento\n\n⚠️ Ajusta id_menu e id_categoria según los IDs que tengas"
+					}
+				},
+				{
+					"name": "2.5 🔴 ELIMINAR PLATO → Dispara 'plato.eliminado' (ALERTA CRÍTICA)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{gateway_url}}/menus/platos/1",
+							"host": ["{{gateway_url}}"],
+							"path": ["menus", "platos", "1"]
+						},
+						"description": "🚨 DISPARA: evento 'plato.eliminado' (ALERTA CRÍTICA)\n\n📍 CÓDIGO QUE SE EJECUTA:\nArchivo: apps/backend-menu/src/menu/menu.service.ts\nLínea 242: webhookService.emitEvent('plato.eliminado', ...)\n\n⚠️ Cambia el ID /platos/1 por el ID real del plato"
+					}
+				}
+			]
+		},
+		{
+			"name": "📡 3. PROBAR WEBHOOKS DIRECTAMENTE EN N8N",
+			"description": "Envía eventos directamente a los webhooks de n8n (sin pasar por los microservicios)",
+			"item": [
+				{
+					"name": "3.1 Webhook Notificación → reserva.creada",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.creada\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"test-reserva-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"reserva_id\": 99,\n    \"id_cliente\": 1,\n    \"id_mesa\": 5,\n    \"fecha\": \"2026-01-20\",\n    \"hora_inicio\": \"20:00\",\n    \"hora_fin\": \"22:00\",\n    \"estado\": \"pendiente\"\n  },\n  \"metadata\": {\n    \"source\": \"PostmanTest\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/reserva-evento",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "reserva-evento"]
+						},
+						"description": "📨 ENVÍA DIRECTAMENTE a n8n\n\nURL: http://localhost:5678/webhook/reserva-evento\n\n🎯 Esto prueba que n8n está recibiendo correctamente\nsin depender de los microservicios."
+					}
+				},
+				{
+					"name": "3.2 Webhook Notificación → reserva.confirmada",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.confirmada\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"test-confirmada-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"reserva_id\": 99,\n    \"id_cliente\": 1,\n    \"id_mesa\": 5,\n    \"fecha\": \"2026-01-20\",\n    \"hora_inicio\": \"20:00\",\n    \"hora_fin\": \"22:00\",\n    \"estado\": \"confirmada\",\n    \"estado_anterior\": \"pendiente\"\n  },\n  \"metadata\": {\n    \"source\": \"PostmanTest\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/reserva-evento",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "reserva-evento"]
+						}
+					}
+				},
+				{
+					"name": "3.3 Webhook Alertas → reserva.cancelada (CRÍTICO)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.cancelada\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"test-cancelada-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"reserva_id\": 99,\n    \"id_cliente\": 1,\n    \"id_mesa\": 5,\n    \"fecha\": \"2026-01-20\",\n    \"hora_inicio\": \"20:00\",\n    \"hora_fin\": \"22:00\",\n    \"estado\": \"cancelada\",\n    \"motivo\": \"Cliente no se presentó\"\n  },\n  \"metadata\": {\n    \"source\": \"PostmanTest\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/alertas",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "alertas"]
+						},
+						"description": "🚨 EVENTO CRÍTICO\n\nEste evento es procesado por el workflow de alertas:\nn8n-workflows/03-alertas-criticas.json\n\n1. Verifica si es crítico (reserva.cancelada = SÍ)\n2. Groq analiza la urgencia\n3. Si es ALTA → Telegram + WhatsApp\n4. Si es MEDIA/BAJA → Solo log"
+					}
+				},
+				{
+					"name": "3.4 Webhook Alertas → plato.eliminado (CRÍTICO)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"plato.eliminado\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"test-plato-eliminado-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"plato_id\": 50,\n    \"nombre\": \"Pasta Carbonara Premium\",\n    \"descripcion\": \"Plato que fue eliminado del menú\",\n    \"precio\": 35.99,\n    \"id_menu\": 1,\n    \"id_categoria\": 1\n  },\n  \"metadata\": {\n    \"source\": \"PostmanTest\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/alertas",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "alertas"]
+						},
+						"description": "🚨 EVENTO CRÍTICO\n\nplato.eliminado es un evento crítico que dispara alertas."
+					}
+				},
+				{
+					"name": "3.5 Webhook Sync Sheets → plato.creado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"plato.creado\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"test-plato-sheets-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"plato_id\": 100,\n    \"nombre\": \"Nuevo Plato para Sheets\",\n    \"descripcion\": \"Este plato debería aparecer en Google Sheets\",\n    \"precio\": 18.50,\n    \"id_menu\": 1,\n    \"id_categoria\": 1,\n    \"disponible\": true\n  },\n  \"metadata\": {\n    \"source\": \"PostmanTest\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/sync-sheets",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "sync-sheets"]
+						},
+						"description": "📊 SINCRONIZACIÓN CON GOOGLE SHEETS\n\nEste webhook envía datos al workflow:\nn8n-workflows/02-sincronizacion-sheets.json\n\nEl evento se registra en una hoja de cálculo de Google."
+					}
+				}
+			]
+		},
+		{
+			"name": "🧪 4. FLUJO COMPLETO DE PRUEBA",
+			"description": "Ejecuta estos en orden para probar todo el flujo",
+			"item": [
+				{
+					"name": "PASO 1: Crear Cliente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"María García - Flujo Completo\",\n  \"email\": \"maria.flujo@test.com\",\n  \"telefono\": \"0998765432\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas/clientes",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "clientes"]
+						}
+					}
+				},
+				{
+					"name": "PASO 2: Crear Mesa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numero\": \"Mesa VIP - Flujo\",\n  \"capacidad\": 6,\n  \"estado\": \"disponible\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas/mesas",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "mesas"]
+						}
+					}
+				},
+				{
+					"name": "PASO 3: Crear Reserva → DISPARA WEBHOOK",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_cliente\": 1,\n  \"id_mesa\": 1,\n  \"fecha\": \"2026-01-25\",\n  \"hora_inicio\": \"19:00\",\n  \"hora_fin\": \"21:00\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas"]
+						},
+						"description": "🔔 Este paso dispara el evento 'reserva.creada'\n\n✅ Después de ejecutar, verifica:\n1. n8n → http://localhost:5678 → Executions\n2. Si tienes Telegram configurado, debería llegar notificación"
+					}
+				},
+				{
+					"name": "PASO 4: Confirmar Reserva → DISPARA WEBHOOK",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"confirmada\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/reservas/1",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "1"]
+						},
+						"description": "🔔 Este paso dispara el evento 'reserva.confirmada'\n\n⚠️ Cambia el ID en la URL por el ID real de la reserva creada"
+					}
+				},
+				{
+					"name": "PASO 5: Cancelar Reserva → DISPARA ALERTA CRÍTICA",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{gateway_url}}/reservas/1",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas", "1"]
+						},
+						"description": "🚨 ALERTA CRÍTICA\n\nEste paso dispara el evento 'reserva.cancelada'\n\n✅ Después de ejecutar, verifica:\n1. n8n → Executions → Debería mostrar el workflow de alertas\n2. Telegram/WhatsApp → Debería llegar mensaje de alerta\n\n⚠️ Cambia el ID en la URL por el ID real"
+					}
+				}
+			]
+		},
+		{
+			"name": "🔍 5. VERIFICAR ESTADO",
+			"description": "Endpoints para verificar que todo funciona",
+			"item": [
+				{
+					"name": "5.1 Ver todas las Reservas",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{gateway_url}}/reservas",
+							"host": ["{{gateway_url}}"],
+							"path": ["reservas"]
+						}
+					}
+				},
+				{
+					"name": "5.2 Ver todos los Platos",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{gateway_url}}/menus/platos",
+							"host": ["{{gateway_url}}"],
+							"path": ["menus", "platos"]
+						}
+					}
+				},
+				{
+					"name": "5.3 Health Check Gateway",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{gateway_url}}/health",
+							"host": ["{{gateway_url}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📋 6. REFERENCIA - Estructura de Eventos",
+			"description": "Ejemplos de la estructura de cada tipo de evento",
+			"item": [
+				{
+					"name": "Estructura: reserva.creada",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.creada\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"reserva-123-creada\",\n  \"timestamp\": \"2026-01-12T15:30:00.000Z\",\n  \"data\": {\n    \"reserva_id\": 123,\n    \"id_cliente\": 1,\n    \"id_mesa\": 5,\n    \"fecha\": \"2026-01-20\",\n    \"hora_inicio\": \"20:00\",\n    \"hora_fin\": \"22:00\",\n    \"estado\": \"pendiente\"\n  },\n  \"metadata\": {\n    \"source\": \"ReservaMS\",\n    \"environment\": \"local\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/reserva-evento",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "reserva-evento"]
+						},
+						"description": "📝 ESTRUCTURA DEL EVENTO reserva.creada\n\nCampos:\n- event: Tipo de evento\n- version: Versión del schema\n- idempotency_key: Clave única para evitar duplicados\n- timestamp: Fecha/hora del evento\n- data: Datos de la reserva\n- metadata: Información adicional"
+					}
+				},
+				{
+					"name": "Estructura: reserva.cancelada (CRÍTICO)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.cancelada\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"reserva-123-cancelada-1705123456\",\n  \"timestamp\": \"2026-01-12T15:30:00.000Z\",\n  \"data\": {\n    \"reserva_id\": 123,\n    \"id_cliente\": 1,\n    \"id_mesa\": 5,\n    \"fecha\": \"2026-01-20\",\n    \"hora_inicio\": \"20:00\",\n    \"hora_fin\": \"22:00\",\n    \"estado\": \"cancelada\",\n    \"motivo\": \"eliminacion\"\n  },\n  \"metadata\": {\n    \"source\": \"ReservaMS\",\n    \"environment\": \"local\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/alertas",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "alertas"]
+						},
+						"description": "🚨 EVENTO CRÍTICO\n\nEste evento activa el workflow de alertas críticas.\n\nCampo adicional:\n- motivo: Razón de la cancelación"
+					}
+				},
+				{
+					"name": "Estructura: plato.creado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"plato.creado\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"plato-456-creado\",\n  \"timestamp\": \"2026-01-12T15:30:00.000Z\",\n  \"data\": {\n    \"plato_id\": 456,\n    \"nombre\": \"Ceviche de Camarón\",\n    \"descripcion\": \"Camarones frescos marinados\",\n    \"precio\": 22.50,\n    \"disponible\": true,\n    \"id_menu\": 1,\n    \"id_categoria\": 1\n  },\n  \"metadata\": {\n    \"source\": \"MenuMS\",\n    \"environment\": \"local\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/reserva-evento",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "reserva-evento"]
+						}
+					}
+				},
+				{
+					"name": "Estructura: plato.eliminado (CRÍTICO)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"plato.eliminado\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"plato-456-eliminado-1705123456\",\n  \"timestamp\": \"2026-01-12T15:30:00.000Z\",\n  \"data\": {\n    \"plato_id\": 456,\n    \"nombre\": \"Ceviche de Camarón\",\n    \"descripcion\": \"Plato eliminado del menú\",\n    \"precio\": 22.50,\n    \"id_menu\": 1,\n    \"id_categoria\": 1\n  },\n  \"metadata\": {\n    \"source\": \"MenuMS\",\n    \"environment\": \"local\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/alertas",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "alertas"]
+						},
+						"description": "🚨 EVENTO CRÍTICO\n\nplato.eliminado activa el workflow de alertas."
+					}
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,329 @@
+{
+  "name": "03 - Alertas Críticas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alertas",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "alertas"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener el evento del webhook\nconst body = $input.item.json.body || $input.item.json;\nconst event = body.event || body.eventType;\n\n// Eventos criticos que deben procesarse\nconst eventosCriticos = ['reserva.cancelada', 'plato.eliminado'];\nconst esCritico = eventosCriticos.includes(event);\n\n// Si es critico, continuar con el flujo\nif (esCritico) {\n  return [{ json: $input.item.json }];\n} else {\n  // Si no es critico, no continuar\n  return [];\n}"
+      },
+      "id": "if-critico-node",
+      "name": "Code - Es Critico?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un asistente que analiza eventos críticos de un sistema de restaurante. Determina el nivel de urgencia: 'alta', 'media' o 'baja'. Responde solo con una palabra: alta, media o baja.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analiza este evento crítico y determina su urgencia: {{ $json.body.event }}. Datos: {{ JSON.stringify($json.body.data) }}\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 10\n}",
+        "options": {}
+      },
+      "id": "groq-node",
+      "name": "HTTP Request - Groq Analizar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "urgencia",
+              "value": "={{ $json.choices[0].message.content.trim().toLowerCase() }}"
+            },
+            {
+              "name": "mensaje",
+              "value": "=⚠️ ALERTA CRÍTICA: {{ $json.body.event }}\nDatos: {{ JSON.stringify($json.body.data) }}"
+            }
+          ]
+        }
+      },
+      "id": "set-urgencia-node",
+      "name": "Set - Urgencia",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "string": [
+                  {
+                    "value1": "={{ $json.urgencia }}",
+                    "value2": "alta",
+                    "operation": "equals"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "alta"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "baja"
+        }
+      },
+      "id": "switch-node",
+      "name": "Switch - Nivel Urgencia",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.mensaje }}"
+      },
+      "id": "telegram-alta-node",
+      "name": "Telegram - Alta",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1250, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credential",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.EVOLUTION_API_URL }}/message/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.EVOLUTION_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $env.WHATSAPP_NUMBER }}\",\n  \"text\": \"{{ $json.mensaje }}\"\n}",
+        "options": {}
+      },
+      "id": "whatsapp-alta-node",
+      "name": "WhatsApp - Alta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll"
+      },
+      "id": "merge-alta-node",
+      "name": "Merge - Alta",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1450, 250]
+    },
+    {
+      "parameters": {
+        "jsCode": "console.log('Urgencia Media/Baja:', $input.item.json.mensaje);\nreturn $input.item.json;"
+      },
+      "id": "log-baja-node",
+      "name": "Code - Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 400]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll"
+      },
+      "id": "merge-final-node",
+      "name": "Merge Final",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Alerta procesada\"\n}"
+      },
+      "id": "respond-node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code - Es Critico?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Es Critico?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Groq Analizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Groq Analizar": {
+      "main": [
+        [
+          {
+            "node": "Set - Urgencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Urgencia": {
+      "main": [
+        [
+          {
+            "node": "Switch - Nivel Urgencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Nivel Urgencia": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Alta",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WhatsApp - Alta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Alta": {
+      "main": [
+        [
+          {
+            "node": "Merge - Alta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp - Alta": {
+      "main": [
+        [
+          {
+            "node": "Merge - Alta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Alta": {
+      "main": [
+        [
+          {
+            "node": "Merge Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Log": {
+      "main": [
+        [
+          {
+            "node": "Merge Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Final": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-01-15T00:00:00.000Z",
+  "versionId": "1"
+}

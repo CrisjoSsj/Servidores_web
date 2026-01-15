@@ -1,0 +1,765 @@
+{
+	"info": {
+		"_postman_id": "mcp-system-collection",
+		"name": "Sistema MCP - Restaurante",
+		"description": "Colección completa de endpoints para el Sistema MCP de gestión de restaurante",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "IA - Endpoint Principal",
+			"item": [
+				{
+					"name": "Consultar herramientas disponibles",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"¿Qué herramientas tienes disponibles?\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["ai"]
+						}
+					}
+				},
+				{
+					"name": "Buscar reservas",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Busca todas las reservas\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["ai"]
+						}
+					}
+				},
+				{
+					"name": "Crear reserva vía IA",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Crea una reserva para la mesa 3 mañana a las 8pm para 4 personas\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["ai"]
+						}
+					}
+				},
+				{
+					"name": "Validar mesa vía IA",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Valida si la mesa 3 existe y está disponible\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["ai"]
+						}
+					}
+				},
+				{
+					"name": "Buscar platos vía IA",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Busca todos los platos disponibles\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["ai"]
+						}
+					}
+				},
+				{
+					"name": "Crear plato vía IA",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Crea un plato llamado 'Pasta Carbonara' con precio 15.99\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/ai",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["ai"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reservas",
+			"item": [
+				{
+					"name": "Listar reservas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas"]
+						}
+					}
+				},
+				{
+					"name": "Buscar reservas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas?q=mañana",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas"],
+							"query": [
+								{
+									"key": "q",
+									"value": "mañana"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear reserva",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_cliente\": 1,\n  \"id_mesa\": 3,\n  \"fecha\": \"2026-01-15\",\n  \"hora_inicio\": \"20:00\",\n  \"hora_fin\": \"22:00\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/reservas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas"]
+						}
+					}
+				},
+				{
+					"name": "Obtener reserva por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar reserva",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_cliente\": 1,\n  \"id_mesa\": 3,\n  \"fecha\": \"2026-01-16\",\n  \"hora_inicio\": \"21:00\",\n  \"hora_fin\": \"23:00\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/reservas/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar reserva",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Mesas",
+			"item": [
+				{
+					"name": "Listar mesas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/mesas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "mesas"]
+						}
+					}
+				},
+				{
+					"name": "Crear mesa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numero\": 5,\n  \"capacidad\": 6,\n  \"estado\": \"disponible\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/reservas/mesas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "mesas"]
+						}
+					}
+				},
+				{
+					"name": "Obtener mesa por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/mesas/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "mesas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar mesa",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numero\": 5,\n  \"capacidad\": 8,\n  \"estado\": \"ocupada\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/reservas/mesas/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "mesas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar mesa",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/mesas/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "mesas", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Listar clientes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/clientes",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "clientes"]
+						}
+					}
+				},
+				{
+					"name": "Crear cliente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"telefono\": \"123456789\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/reservas/clientes",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "clientes"]
+						}
+					}
+				},
+				{
+					"name": "Obtener cliente por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/clientes/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "clientes", "1"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar cliente",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Pérez García\",\n  \"email\": \"juan.perez@example.com\",\n  \"telefono\": \"987654321\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/reservas/clientes/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "clientes", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar cliente",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/reservas/clientes/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["reservas", "clientes", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Menús",
+			"item": [
+				{
+					"name": "Listar menús",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus"]
+						}
+					}
+				},
+				{
+					"name": "Crear menú",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Menú Principal\",\n  \"descripcion\": \"Menú del día\",\n  \"disponible\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/menus",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus"]
+						}
+					}
+				},
+				{
+					"name": "Obtener menú por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "1"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar menú",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Menú Especial\",\n  \"descripcion\": \"Menú especial del día\",\n  \"disponible\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/menus/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar menú",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Platos",
+			"item": [
+				{
+					"name": "Listar platos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/platos",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "platos"]
+						}
+					}
+				},
+				{
+					"name": "Buscar platos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/platos?q=pasta",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "platos"],
+							"query": [
+								{
+									"key": "q",
+									"value": "pasta"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Crear plato",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Pasta Carbonara\",\n  \"descripcion\": \"Pasta con salsa carbonara\",\n  \"precio\": 15.99,\n  \"id_menu\": 1,\n  \"id_categoria\": 1,\n  \"disponible\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/menus/platos",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "platos"]
+						}
+					}
+				},
+				{
+					"name": "Obtener plato por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/platos/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "platos", "1"]
+						}
+					}
+				},
+				{
+					"name": "Listar platos de un menú",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/1/platos",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "1", "platos"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar plato",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Pasta Carbonara Especial\",\n  \"descripcion\": \"Pasta con salsa carbonara premium\",\n  \"precio\": 18.99,\n  \"id_menu\": 1,\n  \"id_categoria\": 1,\n  \"disponible\": true\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/menus/platos/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "platos", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar plato",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/platos/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "platos", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categorías",
+			"item": [
+				{
+					"name": "Listar categorías",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/categorias",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "categorias"]
+						}
+					}
+				},
+				{
+					"name": "Crear categoría",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Platos Principales\",\n  \"descripcion\": \"Platos principales del menú\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/menus/categorias",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "categorias"]
+						}
+					}
+				},
+				{
+					"name": "Obtener categoría por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/categorias/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "categorias", "1"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar categoría",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Platos Principales Premium\",\n  \"descripcion\": \"Platos principales premium del menú\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/menus/categorias/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "categorias", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar categoría",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/menus/categorias/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "3000",
+							"path": ["menus", "categorias", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

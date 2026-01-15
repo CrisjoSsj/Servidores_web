@@ -1,0 +1,596 @@
+{
+	"info": {
+		"_postman_id": "webhooks-testing-collection",
+		"name": "🔔 Webhooks Testing - Verificar Mensajes",
+		"description": "Colección para probar webhooks y verificar que los mensajes del usuario lleguen correctamente.\n\n📋 INSTRUCCIONES:\n1. Ve a https://webhook.site y copia tu URL única\n2. Reemplaza la variable {{webhook_test_url}} con tu URL\n3. Ejecuta las peticiones y verifica en webhook.site que lleguen\n\n✅ Cada webhook incluye metadata para rastrear el mensaje.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "webhook_test_url",
+			"value": "https://webhook.site/tu-uuid-aqui",
+			"description": "Reemplaza con tu URL de webhook.site"
+		},
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "n8n_url",
+			"value": "http://localhost:5678"
+		},
+		{
+			"key": "echo_url",
+			"value": "https://httpbin.org"
+		}
+	],
+	"item": [
+		{
+			"name": "🧪 1. Echo Services - Ver Respuesta Inmediata",
+			"description": "Servicios que devuelven exactamente lo que envías. Útil para verificar que el payload está bien formado.",
+			"item": [
+				{
+					"name": "1.1 Echo POST - Ver mi mensaje reflejado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mensaje\": \"Hola, este es un mensaje de prueba\",\n  \"usuario\": \"CrisjoSsj\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"id_unico\": \"msg-{{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{echo_url}}/post",
+							"host": ["{{echo_url}}"],
+							"path": ["post"]
+						},
+						"description": "Este endpoint devuelve tu mensaje en la respuesta. Verifica que 'json' contenga exactamente lo que enviaste."
+					}
+				},
+				{
+					"name": "1.2 Echo con Headers - Ver headers reflejados",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "usuario-123"
+							},
+							{
+								"key": "X-Request-Source",
+								"value": "postman-test"
+							},
+							{
+								"key": "X-Timestamp",
+								"value": "{{$isoTimestamp}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"accion\": \"crear_reserva\",\n  \"datos\": {\n    \"cliente\": \"Juan Pérez\",\n    \"mesa\": 5,\n    \"fecha\": \"2026-01-20\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{echo_url}}/post",
+							"host": ["{{echo_url}}"],
+							"path": ["post"]
+						},
+						"description": "Verifica que tus headers personalizados aparezcan en la respuesta bajo 'headers'."
+					}
+				},
+				{
+					"name": "1.3 Echo Anything - Cualquier método",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operacion\": \"actualizar\",\n  \"recurso\": \"reserva\",\n  \"id\": 42,\n  \"cambios\": {\n    \"estado\": \"confirmada\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{echo_url}}/anything",
+							"host": ["{{echo_url}}"],
+							"path": ["anything"]
+						},
+						"description": "Acepta cualquier método HTTP y refleja todo el request."
+					}
+				}
+			]
+		},
+		{
+			"name": "🎯 2. Webhook.site - Verificación Visual",
+			"description": "Envía mensajes a webhook.site para verlos en tiempo real en el navegador.\n\n⚠️ Primero ve a https://webhook.site y copia tu URL única.",
+			"item": [
+				{
+					"name": "2.1 Webhook Test - Mensaje Simple",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tipo\": \"test_simple\",\n  \"mensaje\": \"¡Hola! Este mensaje debería aparecer en webhook.site\",\n  \"enviado_por\": \"Postman\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"id_tracking\": \"simple-{{$timestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						},
+						"description": "Mensaje básico. Verifica en webhook.site que aparezca con todos los campos."
+					}
+				},
+				{
+					"name": "2.2 Webhook Test - Reserva Creada",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Event-Type",
+								"value": "reserva.creada"
+							},
+							{
+								"key": "X-Idempotency-Key",
+								"value": "reserva-{{$timestamp}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.creada\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"reserva-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"reserva_id\": 1,\n    \"cliente\": {\n      \"id\": 1,\n      \"nombre\": \"Juan Pérez\",\n      \"email\": \"juan@example.com\"\n    },\n    \"mesa\": {\n      \"id\": 3,\n      \"numero\": \"Mesa 3\",\n      \"capacidad\": 4\n    },\n    \"fecha\": \"2026-01-20\",\n    \"hora_inicio\": \"20:00\",\n    \"hora_fin\": \"22:00\",\n    \"estado\": \"pendiente\"\n  },\n  \"metadata\": {\n    \"source\": \"ReservaMS\",\n    \"environment\": \"testing\",\n    \"user_agent\": \"Postman\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						},
+						"description": "Simula el evento de reserva creada. Verifica que todos los datos del cliente, mesa y reserva lleguen correctamente."
+					}
+				},
+				{
+					"name": "2.3 Webhook Test - Plato Creado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Event-Type",
+								"value": "plato.creado"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"plato.creado\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"plato-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"plato_id\": 5,\n    \"nombre\": \"Ceviche de Camarón\",\n    \"descripcion\": \"Camarones frescos marinados en limón\",\n    \"precio\": 22.50,\n    \"menu\": {\n      \"id\": 1,\n      \"nombre\": \"Menú Principal\"\n    },\n    \"categoria\": {\n      \"id\": 1,\n      \"nombre\": \"Entradas\"\n    },\n    \"disponible\": true\n  },\n  \"metadata\": {\n    \"source\": \"MenuMS\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "2.4 Webhook Test - Comentario Registrado",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Event-Type",
+								"value": "comentario.creado"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"comentario.creado\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"comentario-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"comentario_id\": 10,\n    \"servicio\": {\n      \"id\": 1,\n      \"nombre\": \"Servicio de Catering\"\n    },\n    \"cliente\": {\n      \"id\": 1,\n      \"nombre\": \"María García\"\n    },\n    \"titulo\": \"Excelente experiencia\",\n    \"texto\": \"El servicio superó mis expectativas. Muy recomendado.\",\n    \"calificacion\": 5\n  },\n  \"metadata\": {\n    \"source\": \"ComentarioMS\",\n    \"environment\": \"testing\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "2.5 Webhook Test - Alerta Urgente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Event-Type",
+								"value": "alerta.urgente"
+							},
+							{
+								"key": "X-Priority",
+								"value": "HIGH"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"alerta.urgente\",\n  \"version\": \"1.0\",\n  \"priority\": \"HIGH\",\n  \"idempotency_key\": \"alerta-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"tipo_alerta\": \"reserva_cancelada\",\n    \"descripcion\": \"Cliente no se presentó a la reserva\",\n    \"reserva\": {\n      \"id\": 15,\n      \"cliente\": \"Carlos López\",\n      \"mesa\": \"Mesa VIP 1\",\n      \"fecha\": \"2026-01-12\",\n      \"hora\": \"20:00\"\n    },\n    \"accion_requerida\": \"Liberar mesa y notificar al gerente\"\n  },\n  \"metadata\": {\n    \"source\": \"AlertaMS\",\n    \"environment\": \"testing\",\n    \"requires_action\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📨 3. Mensajes del Usuario - Chat/IA",
+			"description": "Webhooks que simulan mensajes de usuarios hacia el sistema de IA/Chat.",
+			"item": [
+				{
+					"name": "3.1 Mensaje Usuario - Consulta General",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Session",
+								"value": "session-{{$timestamp}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"user_message\",\n  \"session_id\": \"session-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"user\": {\n    \"id\": \"user-001\",\n    \"nombre\": \"CrisjoSsj\",\n    \"canal\": \"web\"\n  },\n  \"message\": {\n    \"id\": \"msg-{{$timestamp}}\",\n    \"text\": \"Hola, quiero hacer una reserva para 4 personas mañana a las 8pm\",\n    \"language\": \"es\"\n  },\n  \"context\": {\n    \"previous_messages\": 0,\n    \"first_interaction\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						},
+						"description": "Simula un mensaje de usuario pidiendo información. Verifica que todos los datos del usuario y mensaje lleguen."
+					}
+				},
+				{
+					"name": "3.2 Mensaje Usuario - Comando IA",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"ai_command\",\n  \"session_id\": \"session-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"user\": {\n    \"id\": \"user-001\",\n    \"nombre\": \"CrisjoSsj\"\n  },\n  \"command\": {\n    \"id\": \"cmd-{{$timestamp}}\",\n    \"action\": \"buscar_reserva\",\n    \"parameters\": {\n      \"query\": \"todas las reservas de hoy\"\n    },\n    \"raw_text\": \"Busca todas las reservas disponibles para hoy\"\n  },\n  \"metadata\": {\n    \"source\": \"chat_web\",\n    \"ip\": \"192.168.1.100\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "3.3 Mensaje Usuario - Crear Reserva via Chat",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"reservation_request\",\n  \"session_id\": \"session-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"user\": {\n    \"id\": \"user-001\",\n    \"nombre\": \"Ana Martínez\",\n    \"email\": \"ana@example.com\",\n    \"telefono\": \"0991234567\"\n  },\n  \"request\": {\n    \"id\": \"req-{{$timestamp}}\",\n    \"intent\": \"crear_reserva\",\n    \"extracted_data\": {\n      \"personas\": 4,\n      \"fecha\": \"2026-01-20\",\n      \"hora\": \"20:00\",\n      \"duracion_horas\": 2,\n      \"preferencias\": [\"mesa cerca de ventana\", \"zona tranquila\"]\n    },\n    \"original_message\": \"Quiero reservar una mesa para 4 personas el 20 de enero a las 8pm, preferiblemente cerca de una ventana\"\n  },\n  \"status\": \"pending_confirmation\"\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "3.4 Mensaje Usuario - Feedback/Calificación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"user_feedback\",\n  \"session_id\": \"session-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"user\": {\n    \"id\": \"user-002\",\n    \"nombre\": \"Roberto Sánchez\"\n  },\n  \"feedback\": {\n    \"id\": \"feedback-{{$timestamp}}\",\n    \"type\": \"rating\",\n    \"target\": {\n      \"type\": \"servicio\",\n      \"id\": 1,\n      \"nombre\": \"Servicio de Catering\"\n    },\n    \"rating\": 5,\n    \"comment\": \"Excelente atención, el chatbot entendió perfectamente lo que necesitaba\",\n    \"tags\": [\"rapido\", \"amable\", \"preciso\"]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔄 4. n8n Webhook Receivers",
+			"description": "Webhooks configurados para recibir en n8n. Estos reflejan el flujo real del sistema.",
+			"item": [
+				{
+					"name": "4.1 n8n - Notificación Nueva Reserva",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"reserva.nueva\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"n8n-reserva-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"payload\": {\n    \"reserva\": {\n      \"id\": 25,\n      \"cliente_id\": 1,\n      \"cliente_nombre\": \"Laura Gómez\",\n      \"cliente_email\": \"laura@example.com\",\n      \"mesa_id\": 5,\n      \"mesa_numero\": \"Mesa 5\",\n      \"fecha\": \"2026-01-22\",\n      \"hora_inicio\": \"19:30\",\n      \"hora_fin\": \"21:30\",\n      \"estado\": \"confirmada\",\n      \"notas\": \"Cumpleaños - decorar mesa\"\n    },\n    \"acciones\": [\n      \"enviar_email_confirmacion\",\n      \"agregar_google_calendar\",\n      \"notificar_cocina\"\n    ]\n  },\n  \"callback_url\": \"{{gateway_url}}/webhooks/callback\"\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/reserva-nueva",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "reserva-nueva"]
+						}
+					}
+				},
+				{
+					"name": "4.2 n8n - Sync Google Sheets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"sync.required\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"sync-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"data\": {\n    \"operation\": \"insert\",\n    \"sheet\": \"Reservas2026\",\n    \"row_data\": {\n      \"ID\": 25,\n      \"Cliente\": \"Laura Gómez\",\n      \"Email\": \"laura@example.com\",\n      \"Mesa\": \"Mesa 5\",\n      \"Fecha\": \"2026-01-22\",\n      \"Hora\": \"19:30 - 21:30\",\n      \"Estado\": \"Confirmada\",\n      \"Notas\": \"Cumpleaños\",\n      \"Creado\": \"{{$isoTimestamp}}\"\n    }\n  },\n  \"metadata\": {\n    \"source\": \"webhook_test\",\n    \"retry_count\": 0\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/sync-sheets",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "sync-sheets"]
+						}
+					}
+				},
+				{
+					"name": "4.3 n8n - Alerta Sistema",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"system.alert\",\n  \"version\": \"1.0\",\n  \"priority\": \"HIGH\",\n  \"idempotency_key\": \"alert-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"alert\": {\n    \"type\": \"capacity_warning\",\n    \"severity\": \"warning\",\n    \"message\": \"El restaurante está al 90% de capacidad para las 20:00\",\n    \"details\": {\n      \"fecha\": \"2026-01-20\",\n      \"hora\": \"20:00\",\n      \"mesas_ocupadas\": 18,\n      \"mesas_totales\": 20,\n      \"reservas_pendientes\": 3\n    },\n    \"recommended_actions\": [\n      \"Revisar lista de espera\",\n      \"Confirmar reservas pendientes\",\n      \"Preparar mesas adicionales si es posible\"\n    ]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/alertas",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "alertas"]
+						}
+					}
+				},
+				{
+					"name": "4.4 n8n - Mensaje Usuario Recibido",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"user.message.received\",\n  \"version\": \"1.0\",\n  \"idempotency_key\": \"usermsg-{{$timestamp}}\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"channel\": \"web_chat\",\n  \"user\": {\n    \"session_id\": \"sess-abc123\",\n    \"user_id\": \"user-456\",\n    \"nombre\": \"Pedro Ramírez\",\n    \"email\": \"pedro@example.com\",\n    \"is_returning\": true,\n    \"previous_visits\": 5\n  },\n  \"message\": {\n    \"id\": \"msg-{{$timestamp}}\",\n    \"text\": \"¿Tienen disponibilidad para 6 personas este viernes?\",\n    \"detected_intent\": \"check_availability\",\n    \"confidence\": 0.95,\n    \"entities\": {\n      \"personas\": 6,\n      \"dia\": \"viernes\"\n    }\n  },\n  \"routing\": {\n    \"destination\": \"ai_agent\",\n    \"fallback\": \"human_agent\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{n8n_url}}/webhook/user-message",
+							"host": ["{{n8n_url}}"],
+							"path": ["webhook", "user-message"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "✅ 5. Verificación de Conectividad",
+			"description": "Tests rápidos para verificar que los endpoints están activos y respondiendo.",
+			"item": [
+				{
+					"name": "5.1 Health Check - Gateway",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{gateway_url}}/health",
+							"host": ["{{gateway_url}}"],
+							"path": ["health"]
+						}
+					}
+				},
+				{
+					"name": "5.2 Health Check - Echo Service",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{echo_url}}/get",
+							"host": ["{{echo_url}}"],
+							"path": ["get"]
+						}
+					}
+				},
+				{
+					"name": "5.3 Delay Test - 2 segundos",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{echo_url}}/delay/2",
+							"host": ["{{echo_url}}"],
+							"path": ["delay", "2"]
+						},
+						"description": "Simula un endpoint lento. Útil para probar timeouts."
+					}
+				},
+				{
+					"name": "5.4 Status Code Test - 201 Created",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{echo_url}}/status/201",
+							"host": ["{{echo_url}}"],
+							"path": ["status", "201"]
+						},
+						"description": "Devuelve el código de estado especificado. Útil para probar manejo de respuestas."
+					}
+				},
+				{
+					"name": "5.5 Status Code Test - 500 Error",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{echo_url}}/status/500",
+							"host": ["{{echo_url}}"],
+							"path": ["status", "500"]
+						},
+						"description": "Simula un error del servidor. Útil para probar manejo de errores."
+					}
+				}
+			]
+		},
+		{
+			"name": "📊 6. Batch Testing - Múltiples Mensajes",
+			"description": "Ejecuta estos en secuencia para simular un flujo completo de usuario.",
+			"item": [
+				{
+					"name": "Batch 1 - Usuario inicia conversación",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sequence\": 1,\n  \"total_steps\": 5,\n  \"session_id\": \"batch-test-001\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"event\": \"conversation.started\",\n  \"user\": {\n    \"id\": \"batch-user-1\",\n    \"nombre\": \"Test User\"\n  },\n  \"message\": \"Hola, buenas tardes\"\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "Batch 2 - Usuario pregunta disponibilidad",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sequence\": 2,\n  \"total_steps\": 5,\n  \"session_id\": \"batch-test-001\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"event\": \"user.query\",\n  \"message\": \"¿Tienen mesa disponible para 4 personas mañana a las 8pm?\",\n  \"intent\": \"check_availability\"\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "Batch 3 - Sistema responde",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sequence\": 3,\n  \"total_steps\": 5,\n  \"session_id\": \"batch-test-001\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"event\": \"system.response\",\n  \"response\": {\n    \"text\": \"¡Sí! Tenemos la Mesa 5 disponible para 4 personas mañana a las 20:00. ¿Desea confirmar la reserva?\",\n    \"options\": [\"Confirmar\", \"Cambiar hora\", \"Cancelar\"]\n  },\n  \"data_found\": {\n    \"mesa_id\": 5,\n    \"disponible\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "Batch 4 - Usuario confirma",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sequence\": 4,\n  \"total_steps\": 5,\n  \"session_id\": \"batch-test-001\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"event\": \"user.confirmation\",\n  \"message\": \"Sí, confirmo la reserva\",\n  \"action\": \"confirm_reservation\",\n  \"user_data\": {\n    \"nombre\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"telefono\": \"0991234567\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				},
+				{
+					"name": "Batch 5 - Reserva completada",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sequence\": 5,\n  \"total_steps\": 5,\n  \"session_id\": \"batch-test-001\",\n  \"timestamp\": \"{{$isoTimestamp}}\",\n  \"event\": \"reservation.completed\",\n  \"status\": \"success\",\n  \"reservation\": {\n    \"id\": 100,\n    \"confirmation_code\": \"RES-2026-0100\",\n    \"cliente\": \"Test User\",\n    \"mesa\": \"Mesa 5\",\n    \"fecha\": \"2026-01-13\",\n    \"hora\": \"20:00 - 22:00\",\n    \"estado\": \"confirmada\"\n  },\n  \"notifications_sent\": [\n    \"email_confirmacion\",\n    \"sms_recordatorio_programado\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{webhook_test_url}}",
+							"host": ["{{webhook_test_url}}"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

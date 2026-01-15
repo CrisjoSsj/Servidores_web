@@ -1,0 +1,53 @@
+version: '3.3'
+
+services:
+  api:
+    container_name: evolution_api
+    image: evoapicloud/evolution-api:v2.3.7
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - evolution_instances:/evolution/instances
+    networks:
+      - evolution-net
+    env_file:
+      - .env
+
+  postgres:
+    container_name: evolution_postgres
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: typebot
+      POSTGRES_DB: evolution_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - evolution-net
+      - default
+
+  redis:
+    container_name: evolution_redis
+    image: redis:alpine
+    restart: always
+    command: redis-server --bind 0.0.0.0 --protected-mode no
+    ports:
+      - "6379:6379"
+    networks:
+      - evolution-net
+      - default
+
+volumes:
+  evolution_instances:
+  pg_data:
+
+networks:
+  evolution-net:
+    driver: bridge

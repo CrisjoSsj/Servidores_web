@@ -1,0 +1,168 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  reserva-ms:
+    build: ./apps/backend-reserva
+    container_name: reserva-ms
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      n8n:
+        condition: service_started
+    environment:
+      - PORT=3003
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - RABBITMQ_QUEUE_RESERVA=reserva_queue
+      - WEBHOOK_SECRET=super_secreto_123
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/reserva-evento
+    volumes:
+      - reserva_data:/app/data
+    ports:
+      - "3003:3003"
+
+  menu-ms:
+    build: ./apps/backend-menu
+    container_name: menu-ms
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      n8n:
+        condition: service_started
+    environment:
+      - PORT=3002
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - RABBITMQ_QUEUE_MENU=menu_queue
+      - RABBITMQ_QUEUE_RESERVA=reserva_queue
+      - WEBHOOK_SECRET=super_secreto_123
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/reserva-evento
+    volumes:
+      - menu_data:/app/data
+    ports:
+      - "3002:3002"
+
+  mcp-server:
+    build: ./apps/mcp-server
+    container_name: mcp-server
+    depends_on:
+      menu-ms:
+        condition: service_started
+      reserva-ms:
+        condition: service_started
+    environment:
+      - PORT=3001
+      - GATEWAY_URL=http://gateway:3000
+    ports:
+      - "3001:3001"
+
+  gateway:
+    build: ./apps/api-gateway
+    container_name: gateway
+    depends_on:
+      menu-ms:
+        condition: service_started
+      reserva-ms:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      mcp-server:
+        condition: service_started
+    environment:
+      - PORT=3000
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - RABBITMQ_QUEUE_MENU=menu_queue
+      - RABBITMQ_QUEUE_RESERVA=reserva_queue
+      - GROQ_API_KEY=${GROQ_API_KEY:-tu_groq_api_key_aqui}
+      - MCP_RPC_URL=http://mcp-server:3001/rpc
+    ports:
+      - "3000:3000"
+
+  postgres-evolution:
+    image: postgres:13
+    container_name: mcp-evolution-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: typebot
+      POSTGRES_DB: evolution_db
+    volumes:
+      - evolution_db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+  redis-evolution:
+    image: redis:alpine
+    container_name: mcp-evolution-redis
+    restart: always
+    command: redis-server --bind 0.0.0.0 --protected-mode no
+    ports:
+      - "6380:6379"
+    networks:
+      - default
+
+  evolution-api:
+    image: evoapicloud/evolution-api:v2.3.7
+    container_name: mcp-evolution-api
+    restart: always
+    depends_on:
+      postgres-evolution:
+        condition: service_healthy
+      redis-evolution:
+        condition: service_started
+    volumes:
+      - evolution_data:/evolution/instances
+    ports:
+      - "8081:8080"
+    env_file:
+      - apps/evolution_api/.env
+    networks:
+      - default
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      evolution-api:
+        condition: service_started
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-admin123}
+      - N8N_HOST=n8n
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://n8n:5678/
+      - GENERIC_TIMEZONE=America/Guayaquil
+      - EVOLUTION_API_URL=${EVOLUTION_API_URL:-http://evolution-api:8080}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-429683C4C977415CAAFCCE10F7D57E11}
+      - WHATSAPP_NUMBER=${WHATSAPP_NUMBER:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-8580113495:AAHp5OmHTuZ7K5t3wsfcvoLpWmddhoNsmJE}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-8580113495}
+      - GROQ_API_KEY=${GROQ_API_KEY:-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}
+      - GOOGLE_SHEETS_ID=${GOOGLE_SHEETS_ID:-}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    ports:
+      - "5678:5678"
+
+volumes:
+  reserva_data:
+  menu_data:
+  n8n_data:
+  evolution_data:
+  evolution_db_data:
